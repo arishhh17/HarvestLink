@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HarvestLink Exchange</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#marketplace" aria-label="HarvestLink Exchange home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>
+          <strong>HarvestLink</strong>
+          <small>Surplus Exchange</small>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="#marketplace">Marketplace</a>
+        <a href="#matches">Matches</a>
+        <a href="#routes">Transport</a>
+        <a href="#impact">Impact</a>
+      </nav>
+
+      <button class="nav-cta" data-scroll-target="#add-listing">Post Surplus</button>
+    </header>
+
+    <main>
+      <section class="ops-hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Live surplus, demand, and route pooling</p>
+          <h1 id="page-title">Move fresh produce before it becomes loss.</h1>
+          <p class="lead">
+            A marketplace for small farmers, buyers, aggregators, and transporters to match surplus crops,
+            fill vehicle capacity, and reduce post-harvest waste.
+          </p>
+
+          <div class="hero-actions" aria-label="Primary actions">
+            <button class="primary-action" data-scroll-target="#marketplace">Find a buyer</button>
+            <button class="secondary-action" data-scroll-target="#routes">Pool a pickup</button>
+          </div>
+        </div>
+
+        <div class="hero-media" aria-label="Farmers and buyers coordinating produce transport">
+          <img src="assets/market-hub.png" alt="Small farmers and buyers coordinating produce transport at a rural aggregation hub" />
+          <div class="dispatch-panel" aria-label="Today dispatch summary">
+            <span class="status-dot"></span>
+            <strong>Today</strong>
+            <span>3 pooled pickups ready</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics-strip" aria-label="Marketplace snapshot">
+        <article>
+          <span id="metricSurplus">0 kg</span>
+          <p>surplus available</p>
+        </article>
+        <article>
+          <span id="metricDemand">0 kg</span>
+          <p>buyer demand</p>
+        </article>
+        <article>
+          <span id="metricVehicles">0</span>
+          <p>shared vehicles open</p>
+        </article>
+        <article>
+          <span id="metricLoss">0%</span>
+          <p>estimated loss reduction</p>
+        </article>
+      </section>
+
+      <section class="workspace" id="marketplace" aria-labelledby="marketplace-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Surplus marketplace</p>
+            <h2 id="marketplace-title">Available lots near buyer routes</h2>
+          </div>
+          <p>
+            Filter by crop, route, urgency, and cold-chain need. Select lots to build a pooled transport plan.
+          </p>
+        </div>
+
+        <form class="filters" id="filters" aria-label="Filter surplus listings">
+          <label>
+            Search
+            <input type="search" id="searchInput" placeholder="Farm, crop, district" />
+          </label>
+          <label>
+            Crop
+            <select id="cropFilter">
+              <option value="all">All crops</option>
+            </select>
+          </label>
+          <label>
+            Route
+            <select id="routeFilter">
+              <option value="all">All routes</option>
+            </select>
+          </label>
+          <label>
+            Urgency
+            <select id="urgencyFilter">
+              <option value="all">Any urgency</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+          <label class="switch-row">
+            <input type="checkbox" id="coldFilter" />
+            Cold-chain only
+          </label>
+        </form>
+
+        <div class="market-layout">
+          <div>
+            <div class="utility-row">
+              <p id="resultCount">Showing 0 lots</p>
+              <button class="ghost-button" id="clearFilters" type="button">Clear filters</button>
+            </div>
+            <div class="listing-grid" id="listingGrid" aria-live="polite"></div>
+          </div>
+
+          <aside class="route-summary" aria-labelledby="route-summary-title">
+            <div class="route-map" aria-hidden="true">
+              <span class="stop stop-a">Farm</span>
+              <span class="stop stop-b">Hub</span>
+              <span class="stop stop-c">Buyer</span>
+            </div>
+            <h3 id="route-summary-title">Selected pickup pool</h3>
+            <div id="selectedLoads" class="selected-loads"></div>
+            <dl class="pool-stats">
+              <div>
+                <dt>Total load</dt>
+                <dd id="poolLoad">0 kg</dd>
+              </div>
+              <div>
+                <dt>Vehicle fit</dt>
+                <dd id="poolVehicle">Mini truck</dd>
+              </div>
+              <div>
+                <dt>Cost saving</dt>
+                <dd id="poolSaving">Rs. 0</dd>
+              </div>
+            </dl>
+            <button class="primary-action full" id="createManifest" type="button">Create transport manifest</button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="workspace soft-band" id="matches" aria-labelledby="matches-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Smart matching</p>
+            <h2 id="matches-title">Best buyer matches</h2>
+          </div>
+          <p>
+            Matches score freshness, buyer demand, price fit, cold-chain need, and pickup route compatibility.
+          </p>
+        </div>
+
+        <div class="match-toolbar">
+          <label>
+            Choose listing
+            <select id="matchListingSelect"></select>
+          </label>
+          <button class="secondary-action" id="refreshMatches" type="button">Refresh matches</button>
+        </div>
+
+        <div class="match-grid" id="matchGrid"></div>
+      </section>
+
+      <section class="workspace" id="routes" aria-labelledby="routes-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Transport efficiency</p>
+            <h2 id="routes-title">Shared dispatch board</h2>
+          </div>
+          <p>
+            Combine nearby surplus into higher vehicle utilization so small farmers can access buyers farther away.
+          </p>
+        </div>
+
+        <div class="dispatch-grid">
+          <article class="dispatch-card">
+            <span class="route-tag">North belt to city mandi</span>
+            <h3>Morning pickup chain</h3>
+            <p>3 farms, 1 hub stop, 72% vehicle fill, mixed vegetable crates.</p>
+            <progress value="72" max="100">72%</progress>
+            <button class="ghost-button" type="button" data-route-pick="North belt">View loads</button>
+          </article>
+          <article class="dispatch-card">
+            <span class="route-tag">River road to processor</span>
+            <h3>Cold-chain run</h3>
+            <p>Leafy greens and tomatoes prioritized for same-day processing.</p>
+            <progress value="61" max="100">61%</progress>
+            <button class="ghost-button" type="button" data-route-pick="River road">View loads</button>
+          </article>
+          <article class="dispatch-card">
+            <span class="route-tag">Hill farms to hotel cluster</span>
+            <h3>Buyer-direct run</h3>
+            <p>Premium fruit lots matched with restaurants and institutional kitchens.</p>
+            <progress value="84" max="100">84%</progress>
+            <button class="ghost-button" type="button" data-route-pick="Hill farms">View loads</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="forms-band" id="add-listing" aria-labelledby="forms-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Onboard supply and demand</p>
+            <h2 id="forms-title">Post a lot or request produce</h2>
+          </div>
+          <p>
+            New entries appear instantly in the demo marketplace and become part of the matching engine.
+          </p>
+        </div>
+
+        <div class="forms-grid">
+          <form id="surplusForm" class="entry-form">
+            <h3>Farmer surplus lot</h3>
+            <label>
+              Farm or group name
+              <input name="farm" required placeholder="Green Valley FPO" />
+            </label>
+            <div class="two-col">
+              <label>
+                Crop
+                <input name="crop" required placeholder="Tomato" />
+              </label>
+              <label>
+                Quantity in kg
+                <input name="quantity" required type="number" min="50" step="10" placeholder="900" />
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                District
+                <input name="district" required placeholder="Kolar" />
+              </label>
+              <label>
+                Route
+                <select name="route">
+                  <option>North belt</option>
+                  <option>River road</option>
+                  <option>Hill farms</option>
+                  <option>Coastal route</option>
+                </select>
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                Price per kg
+                <input name="price" required type="number" min="1" step="1" placeholder="18" />
+              </label>
+              <label>
+                Urgency
+                <select name="urgency">
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </label>
+            </div>
+            <label class="switch-row">
+              <input type="checkbox" name="cold" />
+              Needs cold-chain transport
+            </label>
+            <button class="primary-action full" type="submit">Add surplus lot</button>
+          </form>
+
+          <form id="buyerForm" class="entry-form">
+            <h3>Buyer request</h3>
+            <label>
+              Buyer or business name
+              <input name="org" required placeholder="FreshKart Kitchens" />
+            </label>
+            <div class="two-col">
+              <label>
+                Crop needed
+                <input name="crop" required placeholder="Tomato" />
+              </label>
+              <label>
+                Demand in kg
+                <input name="demand" required type="number" min="50" step="10" placeholder="1200" />
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                Location
+                <input name="location" required placeholder="Bengaluru" />
+              </label>
+              <label>
+                Route
+                <select name="route">
+                  <option>North belt</option>
+                  <option>River road</option>
+                  <option>Hill farms</option>
+                  <option>Coastal route</option>
+                </select>
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                Max price per kg
+                <input name="priceCap" required type="number" min="1" step="1" placeholder="24" />
+              </label>
+              <label>
+                Pickup window
+                <select name="pickup">
+                  <option>Today evening</option>
+                  <option>Tomorrow morning</option>
+                  <option>Tomorrow evening</option>
+                </select>
+              </label>
+            </div>
+            <label class="switch-row">
+              <input type="checkbox" name="cold" />
+              Can handle cold-chain produce
+            </label>
+            <button class="secondary-action full" type="submit">Add buyer request</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="workspace impact-section" id="impact" aria-labelledby="impact-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Impact dashboard</p>
+            <h2 id="impact-title">Loss reduction and farmer value</h2>
+          </div>
+          <p>
+            Track what improves when surplus visibility, buyer demand, and transport capacity are handled together.
+          </p>
+        </div>
+
+        <div class="impact-grid">
+          <article>
+            <strong>Post-harvest loss avoided</strong>
+            <div class="big-number" id="impactLossKg">0 kg</div>
+            <p>Based on urgent lots matched before their quality window closes.</p>
+          </article>
+          <article>
+            <strong>Average transport utilization</strong>
+            <div class="big-number">74%</div>
+            <p>Higher fill rates reduce per-kg delivery cost for small lots.</p>
+          </article>
+          <article>
+            <strong>Farmer price uplift</strong>
+            <div class="big-number">12-18%</div>
+            <p>Direct demand discovery improves price realization over distress sales.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="manifestDialog" class="manifest-dialog">
+      <button class="dialog-close" id="closeManifest" aria-label="Close manifest">x</button>
+      <h2>Transport manifest</h2>
+      <p id="manifestIntro"></p>
+      <div id="manifestList"></div>
+      <div class="manifest-footer">
+        <span id="manifestSaving"></span>
+        <button class="primary-action" id="confirmManifest" type="button">Confirm shared pickup</button>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
